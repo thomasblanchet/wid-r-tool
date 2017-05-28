@@ -1,0 +1,15 @@
+Package: wid
+Type: Package
+Title: Download Data from WID.world
+Version: 0.0.0.9000
+Authors@R: person("Thomas", "Blanchet", email="thomas.blanchet@wid.world", role=c("aut", "cre"))
+Description: This package lets downloads data from the online World Wealth and
+    Income Database (WID.world) directly into R. The World Wealth and Income
+    Database is an extensive source on the historical evolution of the
+    distribution of income and wealth both within and between countries.
+    It relies on the combined effort of an international network of over a
+    hundred researchers covering more than seventy countries from all continents.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1

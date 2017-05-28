@@ -5,7 +5,7 @@
 \title{Download data from WID.world}
 \usage{
 download_wid(indicators = "all", areas = "all", years = "all",
-  ages = "all", populations = "all", metadata = FALSE)
+  ages = "all", populations = "all", metadata = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{indicators}{List of five-letter strings, or \code{"all"}:
@@ -29,6 +29,9 @@ age categories. See 'Details' for more.}
 
 \item{metadata}{Should the function fetch metadata too (ie. variable
 descriptions, sources, methodological notes, etc.)? Default is \code{FALSE}.}
+
+\item{verbose}{Should the function indicate the progress of the request?
+Default is \code{FALSE}.}
 }
 \description{
 Downloads data from the World Wealth and Income Database

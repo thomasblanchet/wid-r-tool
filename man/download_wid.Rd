@@ -5,11 +5,12 @@
 \title{Download data from WID.world}
 \usage{
 download_wid(indicators = "all", areas = "all", years = "all",
-  ages = "all", populations = "all", metadata = FALSE, verbose = FALSE)
+  perc = "all", ages = "all", pop = "all", metadata = FALSE,
+  verbose = FALSE)
 }
 \arguments{
-\item{indicators}{List of five-letter strings, or \code{"all"}:
-code names of the indicators in the database. Default is "all" for all
+\item{indicators}{List of six-letter strings, or \code{"all"}:
+code names of the indicators in the database. Default is \code{"all"} for all
 indicators. See 'Details' for more.}
 
 \item{areas}{List of strings, or \code{"all"}: area code names of the
@@ -19,11 +20,15 @@ Default is \code{"all"} for all areas. See 'Details' for more.}
 \item{years}{Numerical vector, or \code{"all"}: years to retrieve.
 Default is \code{"all"} for all years.}
 
+\item{perc}{List of strings, or \code{"all"}: percentiles take the form
+\code{"pXX"} or \code{"pXXpYY"}. Default is \code{"all"} for all percentiles.
+See 'Details' for more.}
+
 \item{ages}{Numerical vector, or \code{"all"}: age category codes in the
 database. 999 for all ages, 992 for adults. Default is \code{"all"} for all
 age categories. See 'Details' for more.}
 
-\item{populations}{List of characters, or \code{"all"}: type of population.
+\item{pop}{List of characters, or \code{"all"}: type of population.
 \code{"t"} for tax units, \code{"i"} for individuals. Default is
 \code{"all"} for all population types. See 'Details' for more.}
 
@@ -35,7 +40,7 @@ Default is \code{FALSE}.}
 }
 \description{
 Downloads data from the World Wealth and Income Database
-(\url{WID.world}) into a \code{data.frame}.
+(\url{http://WID.world}) into a \code{data.frame}.
 }
 \author{
 Thomas Blanchet

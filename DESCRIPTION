@@ -15,4 +15,8 @@ LazyData: true
 RoxygenNote: 6.0.1
 Depends: R (>= 2.10)
 Imports:
-    httr (>= 1.2.1)
+    httr (>= 1.2.1),
+    base64enc (>= 0.1),
+    plyr (>= 1.8.4)
+Suggests:
+    testthat (>= 1.0.2)

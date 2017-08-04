@@ -249,7 +249,7 @@ ggplot(data) +
 
 ## Divergence of incomes in the United States since 1970
 
-Yet another way of observing an increase in inequality is to observe how the different fractiles of the distribution have evolved since a reference year. In the following graph, you can see that the different percentiles of the US distribution of pre-tax national income had a similar evolution throughout the 1970s, and then started to diverge after 1980.
+Yet another of observing an increase in inequality is to observe how the different fractiles of the distribution have evolved from a reference year. In the following graph, you can see that the different percentiles of the US distribution of pre-tax national income had a similar evolution throughout the 1970s, and then started to diverge after 1980.
 
 ```{r, message=FALSE, fig.align='center', fig.height=4}
 data <- download_wid(

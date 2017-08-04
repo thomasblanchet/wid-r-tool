@@ -111,7 +111,7 @@
 #' level that gets you into the group. For example, the threshold of the
 #' percentile group \code{p90p100} or \code{p90p91} correspond to the 90\%
 #' quantile. Variables with no distributional meaning use the percentile p0p100.
-#' See \code{\url{http://wid.world/percentiles}} for more details.
+#' See \url{http://wid.world/percentiles} for more details.
 #' If you don't specify any percentile, it defaults to \code{"all"} and
 #' downloads data for all available parts of the distribution.
 #' }
@@ -357,7 +357,7 @@ download_wid <- function(indicators="all", areas="all", years="all", perc="all",
     # Clean the up the final dataset
     data$indicator <- NULL
     data <- data[order(data$country, data$variable, data$percentile, data$year), ]
-    #rownames(data) <- 1:nrow(data)
+    rownames(data) <- 1:nrow(data)
     if (metadata) {
         data <- data[, c(
             "country", "variable", "percentile", "year", "value",

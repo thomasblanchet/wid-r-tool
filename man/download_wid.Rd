@@ -146,7 +146,7 @@ percentile group \code{pXXpYY} correspond to the minimal income or wealth
 level that gets you into the group. For example, the threshold of the
 percentile group \code{p90p100} or \code{p90p91} correspond to the 90\%
 quantile. Variables with no distributional meaning use the percentile p0p100.
-See \code{\url{http://wid.world/percentiles}} for more details.
+See \url{http://wid.world/percentiles} for more details.
 If you don't specify any percentile, it defaults to \code{"all"} and
 downloads data for all available parts of the distribution.
 }

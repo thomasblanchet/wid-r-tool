@@ -38,9 +38,150 @@ descriptions, sources, methodological notes, etc.)? Default is \code{FALSE}.}
 \item{verbose}{Should the function indicate the progress of the request?
 Default is \code{FALSE}.}
 }
+\value{
+A \code{data.frame} with the following columns:
+\describe{
+    \item{\code{country}}{The country or area code.}
+    \item{\code{variable}}{The variable name, which combine the indicator,
+    the age code and the population code.}
+    \item{\code{percentile}}{The part of the distribution the value relates to.}
+    \item{\code{year}}{The year the value relates to.}
+    \item{\code{value}}{The value of the indicator.}
+}
+If you specify \code{metadata=TRUE}, the \code{data.frame} also has the
+following columns:
+\describe{
+    \item{\code{shortname}}{A short version of the variable full name in plain english.}
+    \item{\code{shortdes}}{A description of the type of series.}
+    \item{\code{pop}}{The population type, in plain english.}
+    \item{\code{age}}{The age group, in plain english.}
+    \item{\code{source}}{The source for the data.}
+    \item{\code{method}}{Methodological notes, if any.}
+}
+}
 \description{
 Downloads data from the World Wealth and Income Database
 (\url{http://WID.world}) into a \code{data.frame}.
+Type \code{vignette("wid-demo")} for a detailed presentation.
+}
+\details{
+Although all arguments default to \code{"all"}, you cannot download the
+entire database by typing \code{download_wid()}. The command requires you
+to specify either some indicators or some areas.
+
+If there is no data matching you selection on WID.world (maybe because
+you specified an indicator or an area that doesn't exist), the command
+will return \code{NULL} with a warning.
+
+All monetary amounts for countries and country subregions are in constant
+local currency of the reference year (2016). Monetary amounts for world
+regions are in 2016 EUR PPP. You can access the price index using the
+indicator \code{inyixx}, the PPP exchange rates using \code{xlcusp} (USD),
+\code{xlceup} (EUR), \code{xlcyup} (CNY), and the market exchange rates
+using \code{xlcusx} (USD), \code{xlceux} (EUR), \code{xlcyux} (CNY).
+
+Shares and wealth/income ratios are given as a fraction of 1. That is,
+a top 1\% share of 20\% is given as 0.2. A wealth/income ratio of
+300\% is given as 3.
+
+The arguments of the command follow a nomenclature specific to WID.world.
+We provide more details below.
+
+\subsection{Indicators}{
+The argument \code{indicators} is a vector of 6-letter codes that corresponds to a
+given series type for a given income or wealth concept. The first letter
+correspond to the type of series. Some of the most common possibilities include:
+\tabular{rcl}{
+\bold{one-letter code} \tab      \tab \bold{description}     \cr
+\code{a} \tab      \tab average             \cr
+\code{s} \tab      \tab share               \cr
+\code{t} \tab      \tab threshold           \cr
+\code{m} \tab      \tab macroeconomic total \cr
+\code{w} \tab      \tab wealth/income ratio \cr
+}
+See \code{\link{wid_series_type}} to access the complete list. The next five
+letters correspond a concept (usually of income and wealth). Some of the
+most common possibilities include:
+\tabular{rcl}{
+\bold{five-letter code} \tab      \tab \bold{description} \cr
+\code{ptinc} \tab      \tab pre-tax national income \cr
+\code{pllin} \tab      \tab pre-tax labor income    \cr
+\code{pkkin} \tab      \tab pre-tax capital income  \cr
+\code{fiinc} \tab      \tab fiscal income           \cr
+\code{hweal} \tab      \tab net personal wealth     \cr
+}
+See \code{\link{wid_concepts}} to access the complete list.
+For example, \code{sfiinc} corresponds to the share of fiscal income,
+\code{ahweal} corresponds to average personal wealth. If you don't specify
+any indicator, it defaults to \code{"all"} and downloads all available indicators.
+}
+
+\subsection{Area codes}{
+All data in WID.world is associated to a given area, which can be a country,
+a region within a country, an aggregation of countries (eg. a continent), or
+even the whole world. The argument \code{areas} is a vector of codes that specify
+the areas for which to retrieve data. Countries and world regions are coded
+using 2-letter ISO codes. Country subregions are coded as \code{XX-YY}
+where \code{XX} is the country 2-letter code. See \code{\link{wid_area_codes}}
+to access the complete list of area codes. If you don't specify any area,
+it defaults to \code{"all"} and downloads data for all available areas.
+}
+
+\subsection{Years}{
+All data in WID.world correspond to a year. Some series go as far back as
+the 1800s. The argument \code{years} is a vector of integer that specify
+those years. If you don't specify any year, it defaults to \code{"all"}
+and downloads data for all available years.
+}
+
+\subsection{Percentiles}{
+The key feature of WID.world is that it provides data on the whole
+distribution, not just totals and averages. The argument \code{perc}
+is a vector of strings that indicate for which part of the distribution
+the data should be retrieved. For share and average variables,
+percentiles correspond to percentile ranges and take the form \code{pXXpYY}.
+For example the top 1\% share correspond to \code{p99p100}. The top 10\% share
+excluding the top 1\% is \code{p90p99}. Thresholds associated to the
+percentile group \code{pXXpYY} correspond to the minimal income or wealth
+level that gets you into the group. For example, the threshold of the
+percentile group \code{p90p100} or \code{p90p91} correspond to the 90\%
+quantile. Variables with no distributional meaning use the percentile p0p100.
+See \code{\url{http://wid.world/percentiles}} for more details.
+If you don't specify any percentile, it defaults to \code{"all"} and
+downloads data for all available parts of the distribution.
+}
+
+\subsection{Age groups}{
+Data may only concern the population in a certain age group.
+The argument \code{ages} is a vector of age codes that specify which
+age categories to retrieve. Ages are coded using 3-digit codes.
+Some of the most common possibilities include:
+\tabular{rcl}{
+\bold{three-digit code} \tab      \tab \bold{description} \cr
+\code{999} \tab      \tab all ages                          \cr
+\code{992} \tab      \tab adults, including elderly (20+)   \cr
+\code{996} \tab      \tab adults, excluding elderly (20-65) \cr
+}
+See \code{\link{wid_age_codes}} to access the complete list of age codes.
+If you don't specify any age, it defaults to \code{"all"} and downloads
+data for all available age groups.
+}
+
+\subsection{Population types}{
+The data in WID.world can refer to different types of population
+(i.e. different statistical units). The argument \code{pop} is a vector of
+population codes. They are coded using one-letter codes. Some of the
+most common possibilities include:
+\tabular{rcl}{
+\bold{one-letter code} \tab      \tab \bold{description} \cr
+\code{i} \tab      \tab individuals                                                             \cr
+\code{t} \tab      \tab tax units                                                               \cr
+\code{j} \tab      \tab equal-split adults (ie. income or wealth divided equally among spouses) \cr
+}
+See \code{\link{wid_population_codes}} to access the complete list of
+population types. If you don't specify any code, it defaults to \code{"all"}
+and downloads data for all types of population.
+}
 }
 \author{
 Thomas Blanchet

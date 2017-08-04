@@ -21,7 +21,8 @@ get_variables_areas <- function(areas) {
         "wid-countries-available-variables?countries=", query_areas, "&variables=all"
     )
     response_request <- GET(url, add_headers("x-api-key"=base64encode(api_key)))
-    response_content <- eval(parse(text=content(response_request, as="text", encoding="UTF-8")), envir=NULL)
+    response_content <- eval(parse(text=content(response_request, as="text", encoding="UTF-8")),
+        envir=list(null="variable,country,percentile,age,pop\n"))
     response_table <- read.csv(text=response_content, stringsAsFactors=FALSE,
         colClasses=c("character", "character", "character", "integer", "character"))
 
@@ -56,7 +57,8 @@ get_data_variables <- function(areas, variables, years) {
         "&variables=", query_variables, "&years=", query_years
     )
     response_request <- GET(url, add_headers("x-api-key"=base64encode(api_key)))
-    response_content <- eval(parse(text=content(response_request, as="text", encoding="UTF-8")), envir=NULL)
+    response_content <- eval(parse(text=content(response_request, as="text", encoding="UTF-8")),
+        envir=list(null="country,indicator,percentile,year,value\n"))
     response_table <- read.csv(text=response_content, stringsAsFactors=FALSE,
         colClasses=c("character", "character", "character", "integer", "numeric"))
 
@@ -89,7 +91,7 @@ get_metadata_variables <- function(areas, variables) {
         "&variables=", query_variables)
     response_request <- GET(url, add_headers("x-api-key"=base64encode(api_key)))
     response_content <- eval(parse(text=content(response_request, as="text", encoding="UTF-8")),
-        envir=list(null=""))
+        envir=list(null="variable,shortname,shortdes,pop,age,country,source,method\n"))
     response_table <- read.csv(text=response_content, stringsAsFactors=FALSE,
         header=FALSE, skip=1, col.names=c("variable", "shortname", "shortdes", "pop", "age",
             "country", "source", "method", "empty"),

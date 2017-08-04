@@ -19,4 +19,10 @@ Imports:
     base64enc (>= 0.1),
     plyr (>= 1.8.4)
 Suggests:
-    testthat (>= 1.0.2)
+    testthat (>= 1.0.2),
+    knitr (>= 1.16),
+    rmarkdown (>= 1.6),
+    ggplot2 (>= 2.2.1),
+    scales (>= 0.4.1),
+    tidyverse (>= 1.1.1)
+VignetteBuilder: knitr

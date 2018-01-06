@@ -4,7 +4,7 @@ test_that("request for variables in area(s) works as expected", {
     skip_on_cran()
 
     df <- get_variables_areas("FR")
-    expect_equal(nrow(df), 13279)
+    expect_equal(nrow(df), 13454)
     expect_equal(ncol(df), 5)
 
     df <- get_variables_areas("XX")

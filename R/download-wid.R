@@ -357,7 +357,7 @@ download_wid <- function(indicators="all", areas="all", years="all", perc="all",
     # Clean the up the final dataset
     data$indicator <- NULL
     data <- data[order(data$country, data$variable, data$percentile, data$year), ]
-    rownames(data) <- 1:nrow(data)
+    rownames(data) <- NULL
     if (metadata) {
         data <- data[, c(
             "country", "variable", "percentile", "year", "value",

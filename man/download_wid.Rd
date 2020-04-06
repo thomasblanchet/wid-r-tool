@@ -4,9 +4,16 @@
 \alias{download_wid}
 \title{Download data from WID.world}
 \usage{
-download_wid(indicators = "all", areas = "all", years = "all",
-  perc = "all", ages = "all", pop = "all", metadata = FALSE,
-  verbose = FALSE)
+download_wid(
+  indicators = "all",
+  areas = "all",
+  years = "all",
+  perc = "all",
+  ages = "all",
+  pop = "all",
+  metadata = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{indicators}{List of six-letter strings, or \code{"all"}:

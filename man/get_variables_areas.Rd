@@ -4,10 +4,12 @@
 \alias{get_variables_areas}
 \title{Get variables associated to a list of area codes}
 \usage{
-get_variables_areas(areas)
+get_variables_areas(areas, sixlet)
 }
 \arguments{
 \item{areas}{List of area codes.}
+
+\item{sixlet}{Six-letter code for which to fetch variables.}
 }
 \description{
 Perform the GET request to the server to retrieve all

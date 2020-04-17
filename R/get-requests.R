@@ -6,20 +6,21 @@
 #' variables for a list of area codes.
 #'
 #' @param areas List of area codes.
+#' @param sixlet Six-letter code for which to fetch variables.
 #'
 #' @importFrom httr GET add_headers content
 #' @importFrom utils read.csv
 #' @importFrom base64enc base64encode
 #' @importFrom stringi stri_unescape_unicode
 
-get_variables_areas <- function(areas) {
+get_variables_areas <- function(areas, sixlet) {
     # Concatenate area codes
     query_areas <- paste(areas, collapse=",")
 
     # Perform request
     url <- paste0(
         "https://rfap9nitz6.execute-api.eu-west-1.amazonaws.com/prod/",
-        "wid-countries-available-variables?countries=", query_areas, "&variables=all"
+        "wid-countries-available-variables?countries=", query_areas, "&variables=", sixlet
     )
     response_request <- GET(url, add_headers("x-api-key"=base64encode(api_key)))
     response_content <- stri_unescape_unicode(content(response_request, as="text", encoding="UTF-8"))

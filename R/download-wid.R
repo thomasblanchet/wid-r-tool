@@ -168,7 +168,7 @@
 #'     \item{\code{method}}{Methodological notes, if any.}
 #' }
 #'
-#' @importFrom plyr ddply
+#' @importFrom plyr ddply ldply
 #'
 #' @export
 
@@ -193,7 +193,7 @@ download_wid <- function(indicators="all", areas="all", years="all", perc="all",
     }
 
     # Get the variables associated to the area(s)
-    variables <- get_variables_areas(areas)
+    variables <- ldply(indicators, function(sixlet) get_variables_areas(areas, sixlet))
 
     # If empty response, return NULL
     if (nrow(variables) == 0) {

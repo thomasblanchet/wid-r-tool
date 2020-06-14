@@ -87,24 +87,30 @@ get_data_variables <- function(areas, variables, years) {
 
 get_metadata_variables <- function(areas, variables) {
     # Concatenate area codes, variables & years
-    query_areas <- paste(areas, collapse=",")
-    query_variables <- paste(variables, collapse=",")
+    query_areas <- paste(areas, collapse = ",")
+    query_variables <- paste(variables, collapse = ",")
 
     # Perform request
     url <- paste0(
         "https://rfap9nitz6.execute-api.eu-west-1.amazonaws.com/prod/",
         "wid-countries-variables-metadata?countries=", query_areas,
         "&variables=", query_variables)
-    response_request <- GET(url, add_headers("x-api-key"=base64encode(api_key)))
-    response_content <- stri_unescape_unicode(content(response_request, as="text", encoding="UTF-8"))
+    response_request <- GET(url, add_headers("x-api-key" = base64encode(api_key)))
+    response_content <- stri_unescape_unicode(content(response_request, as = "text", encoding = "UTF-8"))
     response_content <- trimws(response_content, whitespace = '"')
 
-    response_table <- read.csv(text=response_content, stringsAsFactors=FALSE,
-        header=FALSE, skip=1, col.names=c("variable", "shortname", "shortdes", "pop", "age",
-            "country", "source", "method", "empty"),
-        colClasses=c("character", "character", "character", "character",
-            "character", "character", "character", "character"))
-    response_table$empty <- NULL
+    response_table <- read.csv(
+        text = response_content,
+        stringsAsFactors = FALSE,
+        header = FALSE,
+        skip = 1,
+        colClasses = "character"
+    )
+
+    # Get rid of extra columns (improperly read due to the format of the CSV
+    response_table <- response_table[, 1:8]
+    colnames(response_table) <- c("variable", "shortname", "shortdes", "pop", "age",
+            "country", "source", "method")
 
     return(response_table)
 }

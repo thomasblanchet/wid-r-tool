@@ -18,7 +18,8 @@ Imports:
     httr (>= 1.2.1),
     base64enc (>= 0.1),
     plyr (>= 1.8.4),
-    stringi (>= 1.4.3)
+    stringi (>= 1.4.3),
+    jsonlite (>= 1.6.1)
 Suggests:
     testthat (>= 1.0.2),
     knitr (>= 1.16),

@@ -25,6 +25,9 @@
 #' \code{"all"} for all population types. See 'Details' for more.
 #' @param metadata Should the function fetch metadata too (ie. variable
 #' descriptions, sources, methodological notes, etc.)? Default is \code{FALSE}.
+#' @param include_extrapolations Should the function return estimates that are
+#' the results of extrapolations and interpolations based on limited data?
+#' Default is \code{TRUE}.
 #' @param verbose Should the function indicate the progress of the request?
 #' Default is \code{FALSE}.
 #'
@@ -172,8 +175,9 @@
 #'
 #' @export
 
-download_wid <- function(indicators="all", areas="all", years="all", perc="all",
-                         ages="all", pop="all", metadata=FALSE, verbose=FALSE) {
+download_wid <- function(indicators = "all", areas = "all", years = "all", perc = "all",
+                         ages = "all", pop = "all", metadata = FALSE,
+                         include_extrapolations = FALSE, verbose = FALSE) {
 
     # Make sure that at least some indicators and some areas were selected
     if (indicators == "all" && areas == "all") {
@@ -209,43 +213,43 @@ download_wid <- function(indicators="all", areas="all", years="all", perc="all",
     if (length(indicators) == 1 && indicators == "all") {
         df_indicators <- NULL
     } else {
-        df_indicators <- data.frame(variable=indicators)
+        df_indicators <- data.frame(variable = indicators)
     }
     # data.frame of specified percentiles
     if (length(perc) == 1 && perc == "all") {
         df_perc <- NULL
     } else {
-        df_perc <- data.frame(percentile=perc)
+        df_perc <- data.frame(percentile = perc)
     }
     # data.frame of ages
     if (length(ages) == 1 && ages == "all") {
         df_ages <- NULL
     } else {
-        df_ages <- data.frame(age=ages)
+        df_ages <- data.frame(age = ages)
     }
     # data.frame of population codes
     if (length(pop) == 1 && pop == "all") {
         df_pop <- NULL
     } else {
-        df_pop <- data.frame(pop=pop)
+        df_pop <- data.frame(pop = pop)
     }
     # Make the list of years explicit
     if (length(years) == 1 && years == "all") {
-        years <- "1800-2016"
+        years <- "all"
     }
 
     # Only keep the variables that match the user selection
     if (!is.null(df_indicators)) {
-        variables <- merge(variables, df_indicators, by="variable", all.x=FALSE, all.y=TRUE)
+        variables <- merge(variables, df_indicators, by = "variable", all.x = FALSE, all.y = TRUE)
     }
     if (!is.null(df_perc)) {
-        variables <- merge(variables, df_perc, by="percentile", all.x=FALSE, all.y=TRUE)
+        variables <- merge(variables, df_perc, by = "percentile", all.x = FALSE, all.y = TRUE)
     }
     if (!is.null(df_ages)) {
-        variables <- merge(variables, df_ages, by="age", all.x=FALSE, all.y=TRUE)
+        variables <- merge(variables, df_ages, by = "age", all.x = FALSE, all.y = TRUE)
     }
     if (!is.null(df_pop)) {
-        variables <- merge(variables, df_pop, by="pop", all.x=FALSE, all.y=TRUE)
+        variables <- merge(variables, df_pop, by = "pop", all.x = FALSE, all.y = TRUE)
     }
 
     # Check that there are some data left
@@ -299,8 +303,13 @@ download_wid <- function(indicators="all", areas="all", years="all", perc="all",
     }
 
     # Generate variable names used in the API
-    variables$data_codes <- paste(variables$variable, variables$percentile,
-        variables$age, variables$pop, sep="_")
+    variables$data_codes <- paste(
+        variables$variable,
+        variables$percentile,
+        variables$age,
+        variables$pop,
+        sep = "_"
+    )
 
     # Divide the data in smaller chunks to avoid request that are too large
     variables$chunk <- round(1:nrow(variables)/50)
@@ -308,17 +317,15 @@ download_wid <- function(indicators="all", areas="all", years="all", perc="all",
         query_codes <- unique(variables$data_codes)
         query_areas <- unique(variables$country)
 
-        return(get_data_variables(query_areas, query_codes, years))
+        return(get_data_variables(query_areas, query_codes))
     })
+    data$chunk <- NULL
 
     # Remove potential duplicates
-    data$chunk <- NULL
-    data <- data[!duplicated(data[, c("country", "indicator", "percentile", "year")]), ]
-    data$variable <- paste0(
-        substr(data$indicator, 1, 6),
-        substr(data$indicator, 8, 10),
-        substr(data$indicator, 12, 12)
-    )
+    data <- data[!duplicated(data[, c("country", "indicator", "year")]), ]
+    indicator <- t(simplify2array(strsplit(data$indicator, "_", fixed = TRUE)))
+    data$variable <- paste0(indicator[, 1], indicator[, 3], indicator[, 4])
+    data$percentile <- indicator[, 2]
 
     if (verbose) {
         cat("DONE\n")
@@ -332,9 +339,14 @@ download_wid <- function(indicators="all", areas="all", years="all", perc="all",
 
         # Only keep the information necessary for the metadata, and then
         # proceed similarly as for the data
-        variables$metadata_codes <- paste(variables$variable, variables$age,
-            variables$pop, sep="_")
-        variables <- unique(variables[, c("country", "metadata_codes")])
+        variables$metadata_codes <- paste(
+            variables$variable,
+            variables$percentile,
+            variables$age,
+            variables$pop,
+            sep = "_"
+        )
+        variables <- variables[!duplicated(variables[, c("country", "variable")]), ]
 
         variables$chunk <- round(1:nrow(variables)/50)
         data_metadata <- ddply(variables, "chunk", function(variables) {
@@ -345,9 +357,16 @@ download_wid <- function(indicators="all", areas="all", years="all", perc="all",
         })
         data_metadata$chunk <- NULL
 
+        # Remove percentile from variable
+        indicator <- t(simplify2array(strsplit(data_metadata$variable, "_", fixed = TRUE)))
+        data_metadata$variable <- paste0(indicator[, 1], indicator[, 3], indicator[, 4])
+
         # Merge with the data
-        data <- merge(data, data_metadata, by=c("variable", "country"),
-            all.x=TRUE, all.y=FALSE)
+        data <- merge(data, data_metadata,
+            by = c("variable", "country"),
+            all.x = TRUE,
+            all.y = FALSE
+        )
 
         if (verbose) {
             cat("DONE\n")
@@ -360,7 +379,7 @@ download_wid <- function(indicators="all", areas="all", years="all", perc="all",
     rownames(data) <- NULL
     if (metadata) {
         data <- data[, c(
-            "country", "variable", "percentile", "year", "value",
+            "country", "countryname", "variable", "percentile", "year", "value",
             "shortname", "shortdes", "pop", "age", "source", "method"
         )]
     } else {

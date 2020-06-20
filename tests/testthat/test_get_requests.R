@@ -4,7 +4,7 @@ test_that("request for variables in area(s) works as expected", {
     skip_on_cran()
 
     df <- get_variables_areas("FR")
-    expect_equal(nrow(df), 14427)
+    expect_equal(nrow(df), 15355)
     expect_equal(ncol(df), 5)
 
     df <- get_variables_areas("XX")
@@ -15,11 +15,11 @@ test_that("request for variables in area(s) works as expected", {
 test_that("request for data works as expected", {
     skip_on_cran()
 
-    df <- get_data_variables("FR", "sptinc_p99p100_992_t", 1980:2000)
+    df <- get_data_variables("FR", "sptinc_p99p100_992_t")
     expect_equal(nrow(df), 21)
     expect_equal(ncol(df), 5)
 
-    df <- get_data_variables("FR", "xxxxxx_p99p100_992_t", 1980:2000)
+    df <- get_data_variables("FR", "xxxxxx_p99p100_992_t")
     expect_equal(nrow(df), 0)
     expect_equal(ncol(df), 5)
 })

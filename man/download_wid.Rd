@@ -12,6 +12,7 @@ download_wid(
   ages = "all",
   pop = "all",
   metadata = FALSE,
+  include_extrapolations = TRUE,
   verbose = FALSE
 )
 }
@@ -42,6 +43,10 @@ age categories. See 'Details' for more.}
 \item{metadata}{Should the function fetch metadata too (ie. variable
 descriptions, sources, methodological notes, etc.)? Default is \code{FALSE}.}
 
+\item{include_extrapolations}{Should the function return estimates that are
+the results of extrapolations and interpolations based on limited data?
+Default is \code{TRUE}.}
+
 \item{verbose}{Should the function indicate the progress of the request?
 Default is \code{FALSE}.}
 }
@@ -55,16 +60,23 @@ A \code{data.frame} with the following columns:
     \item{\code{year}}{The year the value relates to.}
     \item{\code{value}}{The value of the indicator.}
 }
-If you specify \code{metadata=TRUE}, the \code{data.frame} also has the
+If you specify \code{metadata = TRUE}, the \code{data.frame} also has the
 following columns:
 \describe{
+    \item{\code{countryname}}{The full name of the country/region.}
     \item{\code{shortname}}{A short version of the variable full name in plain english.}
     \item{\code{shortdes}}{A description of the type of series.}
     \item{\code{pop}}{The population type, in plain english.}
     \item{\code{age}}{The age group, in plain english.}
     \item{\code{source}}{The source for the data.}
     \item{\code{method}}{Methodological notes, if any.}
+    \item{\code{imputation}}{Type of estimate (when applicable).}
+    \item{\code{quality}}{Data quality (when applicable).}
 }
+The \code{quality} field is a score from 0 to 5 indicating the quality of the
+data. The \code{imputation} field is a short qualitative description of the type
+of estimate provided, which is strongly related to data quality. For technical
+details, see papers cited in the source.
 }
 \description{
 Downloads data from the World Wealth and Income Database
@@ -74,25 +86,32 @@ Type \code{vignette("wid-demo")} for a detailed presentation.
 \details{
 Although all arguments default to \code{"all"}, you cannot download the
 entire database by typing \code{download_wid()}. The command requires you
-to specify either some indicators or some areas.
+to specify either some indicators or some areas. \strong{To download the entire
+database, please visit \url{https://wid.world/data/} and choose "download
+full dataset".}
 
 If there is no data matching you selection on WID.world (maybe because
 you specified an indicator or an area that doesn't exist), the command
 will return \code{NULL} with a warning.
 
 All monetary amounts for countries and country subregions are in constant
-local currency of the reference year (2016). Monetary amounts for world
-regions are in 2016 EUR PPP. You can access the price index using the
-indicator \code{inyixx}, the PPP exchange rates using \code{xlcusp} (USD),
-\code{xlceup} (EUR), \code{xlcyup} (CNY), and the market exchange rates
-using \code{xlcusx} (USD), \code{xlceux} (EUR), \code{xlcyux} (CNY).
+local currency of the reference year (i.e. the previous year, the database
+being updated every year around July). Monetary amounts for world regions
+are in EUR PPP of the reference year. You can access the price index using
+the indicator \code{inyixx}, the PPP exchange rates using \code{xlcusp}
+(USD), \code{xlceup} (EUR), \code{xlcyup} (CNY), and the market exchange
+rates using \code{xlcusx} (USD), \code{xlceux} (EUR), \code{xlcyux}
+(CNY). To check the current reference year, you can look at when the price
+index is equal to 1.
 
 Shares and wealth/income ratios are given as a fraction of 1. That is,
 a top 1\% share of 20\% is given as 0.2. A wealth/income ratio of
 300\% is given as 3.
 
 The arguments of the command follow a nomenclature specific to WID.world.
-We provide more details below.
+We provide more details with a few examples below. \strong{For the complete
+up-to-date documentation of the structure of the database, please visit
+\url{https://wid.world/codes-dictionary}.}
 
 \subsection{Indicators}{
 The argument \code{indicators} is a vector of 6-letter codes that corresponds to a
@@ -106,9 +125,9 @@ correspond to the type of series. Some of the most common possibilities include:
 \code{m} \tab      \tab macroeconomic total \cr
 \code{w} \tab      \tab wealth/income ratio \cr
 }
-See \code{\link{wid_series_type}} to access the complete list. The next five
-letters correspond a concept (usually of income and wealth). Some of the
-most common possibilities include:
+
+The next five letters correspond a concept (usually of income and wealth).
+Some of the most common possibilities include:
 \tabular{rcl}{
 \bold{five-letter code} \tab      \tab \bold{description} \cr
 \code{ptinc} \tab      \tab pre-tax national income \cr
@@ -117,7 +136,7 @@ most common possibilities include:
 \code{fiinc} \tab      \tab fiscal income           \cr
 \code{hweal} \tab      \tab net personal wealth     \cr
 }
-See \code{\link{wid_concepts}} to access the complete list.
+
 For example, \code{sfiinc} corresponds to the share of fiscal income,
 \code{ahweal} corresponds to average personal wealth. If you don't specify
 any indicator, it defaults to \code{"all"} and downloads all available indicators.
@@ -129,8 +148,7 @@ a region within a country, an aggregation of countries (eg. a continent), or
 even the whole world. The argument \code{areas} is a vector of codes that specify
 the areas for which to retrieve data. Countries and world regions are coded
 using 2-letter ISO codes. Country subregions are coded as \code{XX-YY}
-where \code{XX} is the country 2-letter code. See \code{\link{wid_area_codes}}
-to access the complete list of area codes. If you don't specify any area,
+where \code{XX} is the country 2-letter code. If you don't specify any area,
 it defaults to \code{"all"} and downloads data for all available areas.
 }
 
@@ -153,7 +171,6 @@ percentile group \code{pXXpYY} correspond to the minimal income or wealth
 level that gets you into the group. For example, the threshold of the
 percentile group \code{p90p100} or \code{p90p91} correspond to the 90\%
 quantile. Variables with no distributional meaning use the percentile p0p100.
-See \url{http://wid.world/percentiles} for more details.
 If you don't specify any percentile, it defaults to \code{"all"} and
 downloads data for all available parts of the distribution.
 }
@@ -169,7 +186,6 @@ Some of the most common possibilities include:
 \code{992} \tab      \tab adults, including elderly (20+)   \cr
 \code{996} \tab      \tab adults, excluding elderly (20-65) \cr
 }
-See \code{\link{wid_age_codes}} to access the complete list of age codes.
 If you don't specify any age, it defaults to \code{"all"} and downloads
 data for all available age groups.
 }
@@ -185,9 +201,22 @@ most common possibilities include:
 \code{t} \tab      \tab tax units                                                               \cr
 \code{j} \tab      \tab equal-split adults (ie. income or wealth divided equally among spouses) \cr
 }
-See \code{\link{wid_population_codes}} to access the complete list of
-population types. If you don't specify any code, it defaults to \code{"all"}
+If you don't specify any code, it defaults to \code{"all"}
 and downloads data for all types of population.
+}
+
+\subsection{Extrapolations/interpolations}{
+Some of the data on WID.world is the result of interpolations (when data
+is only available for a few years) or extrapolations (when data is not
+available for the most recent years) that are based on much more limited
+information that other data points. We include these
+interpolations/extrapolation by default as a convenience, and also because
+these values are used to perform regional aggregations. Yet we stress that
+these estimates, especially at the level of individual countries, can be
+fragile.
+
+For many purposes, it can be preferable to exclude these data points.
+For that, use the option \code{include_extrapolations = FALSE}.
 }
 }
 \author{

@@ -35,25 +35,32 @@
 #'
 #' Although all arguments default to \code{"all"}, you cannot download the
 #' entire database by typing \code{download_wid()}. The command requires you
-#' to specify either some indicators or some areas.
+#' to specify either some indicators or some areas. \strong{To download the entire
+#' database, please visit \url{https://wid.world/data/} and choose "download
+#' full dataset".}
 #'
 #' If there is no data matching you selection on WID.world (maybe because
 #' you specified an indicator or an area that doesn't exist), the command
 #' will return \code{NULL} with a warning.
 #'
 #' All monetary amounts for countries and country subregions are in constant
-#' local currency of the reference year (2016). Monetary amounts for world
-#' regions are in 2016 EUR PPP. You can access the price index using the
-#' indicator \code{inyixx}, the PPP exchange rates using \code{xlcusp} (USD),
-#' \code{xlceup} (EUR), \code{xlcyup} (CNY), and the market exchange rates
-#' using \code{xlcusx} (USD), \code{xlceux} (EUR), \code{xlcyux} (CNY).
+#' local currency of the reference year (i.e. the previous year, the database
+#' being updated every year around July). Monetary amounts for world regions
+#' are in EUR PPP of the reference year. You can access the price index using
+#' the indicator \code{inyixx}, the PPP exchange rates using \code{xlcusp}
+#' (USD), \code{xlceup} (EUR), \code{xlcyup} (CNY), and the market exchange
+#' rates using \code{xlcusx} (USD), \code{xlceux} (EUR), \code{xlcyux}
+#' (CNY). To check the current reference year, you can look at when the price
+#' index is equal to 1.
 #'
 #' Shares and wealth/income ratios are given as a fraction of 1. That is,
 #' a top 1\% share of 20\% is given as 0.2. A wealth/income ratio of
 #' 300\% is given as 3.
 #'
 #' The arguments of the command follow a nomenclature specific to WID.world.
-#' We provide more details below.
+#' We provide more details with a few examples below. \strong{For the complete
+#' up-to-date documentation of the structure of the database, please visit
+#' \url{https://wid.world/codes-dictionary}.}
 #'
 #' \subsection{Indicators}{
 #' The argument \code{indicators} is a vector of 6-letter codes that corresponds to a
@@ -67,9 +74,9 @@
 #' \code{m} \tab      \tab macroeconomic total \cr
 #' \code{w} \tab      \tab wealth/income ratio \cr
 #' }
-#' See \code{\link{wid_series_type}} to access the complete list. The next five
-#' letters correspond a concept (usually of income and wealth). Some of the
-#' most common possibilities include:
+#'
+#' The next five letters correspond a concept (usually of income and wealth).
+#' Some of the most common possibilities include:
 #' \tabular{rcl}{
 #' \bold{five-letter code} \tab      \tab \bold{description} \cr
 #' \code{ptinc} \tab      \tab pre-tax national income \cr
@@ -78,7 +85,7 @@
 #' \code{fiinc} \tab      \tab fiscal income           \cr
 #' \code{hweal} \tab      \tab net personal wealth     \cr
 #' }
-#' See \code{\link{wid_concepts}} to access the complete list.
+#'
 #' For example, \code{sfiinc} corresponds to the share of fiscal income,
 #' \code{ahweal} corresponds to average personal wealth. If you don't specify
 #' any indicator, it defaults to \code{"all"} and downloads all available indicators.
@@ -90,8 +97,7 @@
 #' even the whole world. The argument \code{areas} is a vector of codes that specify
 #' the areas for which to retrieve data. Countries and world regions are coded
 #' using 2-letter ISO codes. Country subregions are coded as \code{XX-YY}
-#' where \code{XX} is the country 2-letter code. See \code{\link{wid_area_codes}}
-#' to access the complete list of area codes. If you don't specify any area,
+#' where \code{XX} is the country 2-letter code. If you don't specify any area,
 #' it defaults to \code{"all"} and downloads data for all available areas.
 #' }
 #'
@@ -114,7 +120,6 @@
 #' level that gets you into the group. For example, the threshold of the
 #' percentile group \code{p90p100} or \code{p90p91} correspond to the 90\%
 #' quantile. Variables with no distributional meaning use the percentile p0p100.
-#' See \url{http://wid.world/percentiles} for more details.
 #' If you don't specify any percentile, it defaults to \code{"all"} and
 #' downloads data for all available parts of the distribution.
 #' }
@@ -130,7 +135,6 @@
 #' \code{992} \tab      \tab adults, including elderly (20+)   \cr
 #' \code{996} \tab      \tab adults, excluding elderly (20-65) \cr
 #' }
-#' See \code{\link{wid_age_codes}} to access the complete list of age codes.
 #' If you don't specify any age, it defaults to \code{"all"} and downloads
 #' data for all available age groups.
 #' }
@@ -146,9 +150,22 @@
 #' \code{t} \tab      \tab tax units                                                               \cr
 #' \code{j} \tab      \tab equal-split adults (ie. income or wealth divided equally among spouses) \cr
 #' }
-#' See \code{\link{wid_population_codes}} to access the complete list of
-#' population types. If you don't specify any code, it defaults to \code{"all"}
+#' If you don't specify any code, it defaults to \code{"all"}
 #' and downloads data for all types of population.
+#' }
+#'
+#' \subsection{Extrapolations/interpolations}{
+#' Some of the data on WID.world is the result of interpolations (when data
+#' is only available for a few years) or extrapolations (when data is not
+#' available for the most recent years) that are based on much more limited
+#' information that other data points. We include these
+#' interpolations/extrapolation by default as a convenience, and also because
+#' these values are used to perform regional aggregations. Yet we stress that
+#' these estimates, especially at the level of individual countries, can be
+#' fragile.
+#'
+#' For many purposes, it can be preferable to exclude these data points.
+#' For that, use the option \code{include_extrapolations = FALSE}.
 #' }
 #'
 #' @return A \code{data.frame} with the following columns:
@@ -160,16 +177,23 @@
 #'     \item{\code{year}}{The year the value relates to.}
 #'     \item{\code{value}}{The value of the indicator.}
 #' }
-#' If you specify \code{metadata=TRUE}, the \code{data.frame} also has the
+#' If you specify \code{metadata = TRUE}, the \code{data.frame} also has the
 #' following columns:
 #' \describe{
+#'     \item{\code{countryname}}{The full name of the country/region.}
 #'     \item{\code{shortname}}{A short version of the variable full name in plain english.}
 #'     \item{\code{shortdes}}{A description of the type of series.}
 #'     \item{\code{pop}}{The population type, in plain english.}
 #'     \item{\code{age}}{The age group, in plain english.}
 #'     \item{\code{source}}{The source for the data.}
 #'     \item{\code{method}}{Methodological notes, if any.}
+#'     \item{\code{imputation}}{Type of estimate (when applicable).}
+#'     \item{\code{quality}}{Data quality (when applicable).}
 #' }
+#' The \code{quality} field is a score from 0 to 5 indicating the quality of the
+#' data. The \code{imputation} field is a short qualitative description of the type
+#' of estimate provided, which is strongly related to data quality. For technical
+#' details, see papers cited in the source.
 #'
 #' @importFrom plyr ddply ldply
 #'
@@ -177,7 +201,7 @@
 
 download_wid <- function(indicators = "all", areas = "all", years = "all", perc = "all",
                          ages = "all", pop = "all", metadata = FALSE,
-                         include_extrapolations = FALSE, verbose = FALSE) {
+                         include_extrapolations = TRUE, verbose = FALSE) {
 
     # Make sure that at least some indicators and some areas were selected
     if (indicators == "all" && areas == "all") {
@@ -233,23 +257,19 @@ download_wid <- function(indicators = "all", areas = "all", years = "all", perc 
     } else {
         df_pop <- data.frame(pop = pop)
     }
-    # Make the list of years explicit
-    if (length(years) == 1 && years == "all") {
-        years <- "all"
-    }
 
     # Only keep the variables that match the user selection
     if (!is.null(df_indicators)) {
-        variables <- merge(variables, df_indicators, by = "variable", all.x = FALSE, all.y = TRUE)
+        variables <- merge(variables, df_indicators, by = "variable", all.x = FALSE, all.y = FALSE)
     }
     if (!is.null(df_perc)) {
-        variables <- merge(variables, df_perc, by = "percentile", all.x = FALSE, all.y = TRUE)
+        variables <- merge(variables, df_perc, by = "percentile", all.x = FALSE, all.y = FALSE)
     }
     if (!is.null(df_ages)) {
-        variables <- merge(variables, df_ages, by = "age", all.x = FALSE, all.y = TRUE)
+        variables <- merge(variables, df_ages, by = "age", all.x = FALSE, all.y = FALSE)
     }
     if (!is.null(df_pop)) {
-        variables <- merge(variables, df_pop, by = "pop", all.x = FALSE, all.y = TRUE)
+        variables <- merge(variables, df_pop, by = "pop", all.x = FALSE, all.y = FALSE)
     }
 
     # Check that there are some data left
@@ -299,7 +319,7 @@ download_wid <- function(indicators = "all", areas = "all", years = "all", perc 
         } else {
             cat("y)\n")
         }
-        cat("* Download the data...")
+        cat("* Download the data...\n")
     }
 
     # Generate variable names used in the API
@@ -311,30 +331,36 @@ download_wid <- function(indicators = "all", areas = "all", years = "all", perc 
         sep = "_"
     )
 
-    # Divide the data in smaller chunks to avoid request that are too large
-    variables$chunk <- round(1:nrow(variables)/50)
+    # Divide the data in smaller chunks to avoid request that are too large:
+    # group by variable and percentile
+    variables$group <- as.numeric(factor(variables$data_code))
+    variables$chunk <- floor(variables$group/10)
+
     data <- ddply(variables, "chunk", function(variables) {
         query_codes <- unique(variables$data_codes)
         query_areas <- unique(variables$country)
 
-        return(get_data_variables(query_areas, query_codes))
-    })
-    data$chunk <- NULL
+        return(get_data_variables(query_areas, query_codes,
+            no_extrapolation = !include_extrapolations))
+    }, .progress = ifelse(verbose, "text", "none"))
 
     # Remove potential duplicates
     data <- data[!duplicated(data[, c("country", "indicator", "year")]), ]
+
+    # Remove years not requested
+    if (!identical(years, "all")) {
+        data <- data[(data$year %in% years), ]
+    }
+
+    # Extract codes without percentiles
     indicator <- t(simplify2array(strsplit(data$indicator, "_", fixed = TRUE)))
     data$variable <- paste0(indicator[, 1], indicator[, 3], indicator[, 4])
     data$percentile <- indicator[, 2]
 
-    if (verbose) {
-        cat("DONE\n")
-    }
-
     # Retrieve metadata, if requested
     if (metadata) {
         if (verbose) {
-            cat("* Download the metadata...")
+            cat("* Download the metadata...\n")
         }
 
         # Only keep the information necessary for the metadata, and then
@@ -348,13 +374,13 @@ download_wid <- function(indicators = "all", areas = "all", years = "all", perc 
         )
         variables <- variables[!duplicated(variables[, c("country", "variable")]), ]
 
-        variables$chunk <- round(1:nrow(variables)/50)
+        variables$chunk <- floor(1:nrow(variables)/50)
         data_metadata <- ddply(variables, "chunk", function(variables) {
             query_codes <- unique(variables$metadata_codes)
             query_areas <- unique(variables$country)
 
             return(get_metadata_variables(query_areas, query_codes))
-        })
+        }, .progress = ifelse(verbose, "text", "none"))
         data_metadata$chunk <- NULL
 
         # Remove percentile from variable
@@ -367,10 +393,6 @@ download_wid <- function(indicators = "all", areas = "all", years = "all", perc 
             all.x = TRUE,
             all.y = FALSE
         )
-
-        if (verbose) {
-            cat("DONE\n")
-        }
     }
 
     # Clean the up the final dataset
@@ -380,7 +402,7 @@ download_wid <- function(indicators = "all", areas = "all", years = "all", perc 
     if (metadata) {
         data <- data[, c(
             "country", "countryname", "variable", "percentile", "year", "value",
-            "shortname", "shortdes", "pop", "age", "source", "method"
+            "shortname", "shortdes", "pop", "age", "source", "method", "imputation", "quality"
         )]
     } else {
         data <- data[, c("country", "variable", "percentile", "year", "value")]

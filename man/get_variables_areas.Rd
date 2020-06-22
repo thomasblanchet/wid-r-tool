@@ -4,7 +4,7 @@
 \alias{get_variables_areas}
 \title{Get variables associated to a list of area codes}
 \usage{
-get_variables_areas(areas, sixlet)
+get_variables_areas(areas, sixlet = "all")
 }
 \arguments{
 \item{areas}{List of area codes.}

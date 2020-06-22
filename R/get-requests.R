@@ -33,15 +33,19 @@ get_variables_areas <- function(areas, sixlet = "all") {
         json_variable <- response_json[[variable]]
         for (country in names(json_variable)) {
             json_country <- json_variable[[country]]
-            json_country <- as.data.frame(
-                t(simplify2array(json_country)),
-                stringsAsFactors = FALSE
-            )
-            colnames(json_country) <- c("percentile", "age", "pop")
-            json_country$variable <- variable
-            json_country$country <- country
+            df_country <- data.frame()
+            for (i in json_country) {
+                df_country <- rbind(df_country, data.frame(
+                    percentile = i[[1]],
+                    age = i[[2]],
+                    pop = i[[3]],
+                    stringsAsFactors = FALSE
+                ))
+            }
+            df_country$variable <- variable
+            df_country$country <- country
 
-            response_table <- rbind(response_table, json_country)
+            response_table <- rbind(response_table, df_country)
         }
     }
 
@@ -57,6 +61,8 @@ get_variables_areas <- function(areas, sixlet = "all") {
 #'
 #' @param areas List of area codes.
 #' @param variables List of variables, of the form: \code{"xxxxxx_pXXpYY_999_i"}
+#' @param no_extrapolation Logical: should interpolated/extrapolated years be
+#' included or not?
 #'
 #' @importFrom httr GET add_headers content
 #' @importFrom base64enc base64encode
@@ -84,14 +90,16 @@ get_data_variables <- function(areas, variables, no_extrapolation = FALSE) {
             # Extract country
             country <- names(json_country)
             # Extract data
-            json_data <- simplify2array(json_country[[1]]$values)
-            json_data <- data.frame(
-                indicator = variable,
-                country = country,
-                year = unlist(json_data[1, ]),
-                value = unlist(json_data[2, ]),
-                stringsAsFactors = FALSE
-            )
+            df_data <- data.frame()
+            for (i in json_country[[1]]$values) {
+                df_data <- rbind(df_data, data.frame(
+                    indicator = variable,
+                    country = country,
+                    year = i[[1]],
+                    value = i[[2]],
+                    stringsAsFactors = FALSE
+                ))
+            }
             # Extract metadata
             json_meta <- json_country[[1]]$meta
 
@@ -122,11 +130,11 @@ get_data_variables <- function(areas, variables, no_extrapolation = FALSE) {
                     to_exclude <- to_exclude[!(to_exclude %in% data_points)]
 
                     # Remove extrapolations from the data
-                    json_data <- json_data[!(json_data$year %in% to_exclude), ]
+                    df_data <- df_data[!(df_data$year %in% to_exclude), ]
                 }
             }
 
-            response_table <- rbind(response_table, json_data)
+            response_table <- rbind(response_table, df_data)
         }
     }
 
@@ -211,6 +219,13 @@ get_metadata_variables <- function(areas, variables) {
             response_table <- rbind(response_table, meta)
         }
     }
+
+    # Clarify meaning of 'imputation'
+    response_table$imputation[response_table$imputation == "region"]    <- "regional imputation"
+    response_table$imputation[response_table$imputation == "survey"]    <- "adjusted surveys"
+    response_table$imputation[response_table$imputation == "tax"]       <- "surveys and tax data"
+    response_table$imputation[response_table$imputation == "full"]      <- "surveys and tax microdata"
+    response_table$imputation[response_table$imputation == "rescaling"] <- "rescaled fiscal income"
 
     return(response_table)
 }

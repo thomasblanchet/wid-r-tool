@@ -3,7 +3,7 @@ title: "Download data from WID.world into R"
 author: |
     | Thomas Blanchet
     | Paris School of Economics -- EHESS
-date: "August 4th, 2017"
+date: "\\today"
 header-includes:
     - \usepackage[bitstream-charter]{mathdesign}
     - \usepackage[T1]{fontenc}
@@ -16,7 +16,7 @@ geometry: margin=0.8in
 classoption: a4paper
 linestretch: 1.2
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Download data from WID.world into R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -43,7 +43,8 @@ download_wid(
     ages, # Age groups (adults, all ages, elderly, etc.)
     pop, # Population type (individual, households, tax units, etc.)
     metadata, # Logical: should it fetch metadata too (eg. sources, etc.)
-    verbose # Logical: should it display messages showing progress
+    verbose, # Logical: should it display messages showing progress
+    include_extrapolations # Logical: should it include data based on extrapolations/interpolations
 )
 ````
 
@@ -110,19 +111,25 @@ Type `?wid_population_codes` to access the complete list of population types. If
 
 All data in WID.world is associated to a metadata giving in particular sources and methodological details. If the argument `metadata` is `TRUE`, the command will download those as well. Default is `FALSE`.
 
+\paragraph{Extrapolations/interpolations}
+
+Some of the data on WID.world is the result of interpolations (when data is only available for a few years) or extrapolations (when data is not available for the most recent years) that are based on much more limited information that other data points. We include these interpolations/extrapolation by default as a convenience, and also because these values are used to perform regional aggregations. Yet we stress that these estimates, especially at the level of individual countries, can be fragile.
+
+For many purposes, it can be preferable to exclude these data points. For that, use the option `include_extrapolations = FALSE`.
+
 \paragraph{Verbose}
 
 By default, the command is silent. If you set `verbose = TRUE`, it will output some information on the progress of the request.
 
 # Usage
 
-Although all arguments default to `"all"`, you cannot download the entire database by typing `download_wid()`. The command requires you to specify either some indicators or some areas.
+Although all arguments default to `"all"`, you cannot download the entire database by typing `download_wid()`. The command requires you to specify either some indicators or some areas. To download the entire database, please visit \url{https://wid.world/data/} and choose ``download full dataset''.
 
 If there is no data matching you selection on WID.world (maybe because you specified an indicator or an area that doesn't exist), the command will return `NULL` with a warning.
 
 The command returns a sorted `data.frame` with the following columns: `country`, `variable`, `percentile`, `year` and `value`.
 
-All monetary amounts for countries and country subregions are in constant local currency of the reference year (2016). Monetary amounts for world regions are in 2016 EUR PPP. You can access the price index using the indicator \texttt{inyixx}, the PPP exchange rates using \texttt{xlcusp} (USD), \texttt{xlceup} (EUR), \texttt{xlcyup} (CNY), and the market exchange rates using \texttt{xlcusx} (USD), \texttt{xlceux} (EUR), \texttt{xlcyux} (CNY).
+All monetary amounts for countries and country subregions are in constant local currency of the reference year (i.e. the previous year, the database being updated every year around July). Monetary amounts for world regions are in EUR PPP of the reference year. You can access the price index using the indicator \texttt{inyixx}, the PPP exchange rates using \texttt{xlcusp} (USD), \texttt{xlceup} (EUR), \texttt{xlcyup} (CNY), and the market exchange rates using \texttt{xlcusx} (USD), \texttt{xlceux} (EUR), \texttt{xlcyux} (CNY). To check the current reference year, you can look at when the price index is equal to 1.
 
 Shares and wealth/income ratios are given as a fraction of 1. That is, a top 1% share of 20% is given as 0.2. A wealth/income ratio of 300% is given as 3.
 
@@ -172,10 +179,10 @@ library(ggplot2)
 library(scales)
 
 ggplot(data) +
-    geom_line(aes(x=year, y=value, color=percentile)) +
+    geom_line(aes(x = year, y = value, color = percentile)) +
     ylab("top share") +
-    scale_y_continuous(label=percent) +
-    scale_color_discrete(labels=c("p90p100"="top 10%", "p99p100"="top 1%")) + 
+    scale_y_continuous(label = percent) +
+    scale_color_discrete(labels = c("p90p100" = "top 10%", "p99p100" = "top 1%")) + 
     ggtitle("Top 1% and top 10% personal wealth shares in France, 1800-2015")
 ``` 
 
@@ -194,23 +201,23 @@ data <- download_wid(
     perc = "p0p50", # Bottom half of the population
     pop = "j", # Equal-split individuals
     year = 1978:2015
-) %>% rename(value_lcu=value)
+) %>% rename(value_lcu = value)
 
 # Purchasing power parities with US dollar
 ppp <- download_wid(
     indicators = "xlcusp", # US PPP
     areas = c("FR", "CN", "US"), # France, China and United States
     year = 2016 # Reference year only
-) %>% rename(ppp=value) %>% select(-year, -percentile)
+) %>% rename(ppp = value) %>% select(-year, -percentile)
 
 # Convert from local currency to PPP US dollar
-data <- merge(data, ppp, by="country") %>%
-    mutate(value_ppp=value_lcu/ppp)
+data <- merge(data, ppp, by = "country") %>%
+    mutate(value_ppp = value_lcu/ppp)
 
 ggplot(data) +
-    geom_line(aes(x=year, y=value_ppp, color=country)) +
+    geom_line(aes(x = year, y = value_ppp, color = country)) +
     ylab("2016 $ PPP") +
-    scale_color_discrete(labels=c("CN"="China", "US"="USA", "FR"="France")) + 
+    scale_color_discrete(labels = c("CN" = "China", "US" = "USA", "FR" = "France")) + 
     ggtitle("Bottom 50% pre-tax national income")
 ```
 
@@ -224,25 +231,25 @@ data <- download_wid(
     indicators = "anninc", # Average net national income
     areas = c("FR", "US", "DE", "GB"),
     ages = 992 # Adults
-) %>% rename(value_lcu=value)
+) %>% rename(value_lcu = value)
 
 # Purchasing power parities with US dollar
 ppp <- download_wid(
     indicators = "xlcusp", # US PPP
     areas = c("FR", "US", "DE", "GB"), # France, China and United States
     year = 2016 # Reference year only
-) %>% rename(ppp=value) %>% select(-year, -percentile)
+) %>% rename(ppp = value) %>% select(-year, -percentile)
 
 # Convert from local currency to PPP US dollar
-data <- merge(data, ppp, by="country") %>%
-    mutate(value_ppp=value_lcu/ppp)
+data <- merge(data, ppp, by = "country") %>%
+    mutate(value_ppp = value_lcu/ppp)
 
 ggplot(data) +
-    geom_line(aes(x=year, y=value_ppp, color=country)) +
-    scale_y_log10(breaks=c(2e3, 5e3, 1e4, 2e4, 5e4)) +
+    geom_line(aes(x = year, y = value_ppp, color = country)) +
+    scale_y_log10(breaks = c(2e3, 5e3, 1e4, 2e4, 5e4)) +
     ylab("2016 $ PPP") +
     scale_color_discrete(
-        labels=c("US"="USA", "FR"="France", "DE"="Germany", "GB"="UK")
+        labels = c("US" = "USA", "FR" = "France", "DE" = "Germany", "GB" = "UK")
     ) + 
     ggtitle("Average net national income per adult")
 ```
@@ -260,20 +267,59 @@ data <- download_wid(
 
 # Keep the value for 1970 in a separate data.frame
 data1970 <- data %>% filter(year == 1970) %>%
-    rename(value1970=value) %>%
+    rename(value1970 = value) %>%
     select(-year)
 
 # Divide series by the reference year (1970)
-data <- merge(data, data1970, by=c("country", "percentile")) %>%
-    mutate(value=100*value/value1970)
+data <- merge(data, data1970, by = c("country", "percentile")) %>%
+    mutate(value = 100*value/value1970)
 
 ggplot(data) +
-    geom_line(aes(x=year, y=value, color=percentile)) +
+    geom_line(aes(x = year, y = value, color = percentile)) +
     ylab("1970 = 100") +
     scale_color_discrete(
-        labels=c("p10p100"="P10", "p50p100"="P50", "p90p100"="P90",
-            "p99p100"="P99", "p99.9p100"="P99.9")
+        labels = c("p10p100" = "P10", "p50p100" = "P50", "p90p100" = "P90",
+            "p99p100" = "P99", "p99.9p100" = "P99.9")
     ) + 
     ggtitle("Divergence of pre-tax national income in the United States")
+```
+
+## Including or excluding extrapolations
+
+In some countries, many data points are the result of interpolations or extrapolations. For example, estimates in most African countries are based on surveys that are only realized every few years, which we interpolate to produce yearly series and perform regional aggregations. For example, takethe inequality series for Mozambique:
+
+```{r, message=FALSE, fig.align='center', fig.height=4}
+data <- download_wid(
+    indicators = "sptinc", # Shares of pre-tax national income
+    areas = "MZ", # Mozambique
+    perc = c("p0p50", "p90p100", "p99p100") # Bottom 50%, top 10% and top 1%
+)
+
+ggplot(data, aes(x = year, y = value, color = percentile)) +
+    geom_line() + geom_point() +
+    ylab("share of income") +
+    scale_color_discrete(
+        labels = c("p0p50" = "bottom 50%", "p90p100" = "top 10%", "p99p100" = "top 1%")
+    ) + 
+    ggtitle("Pre-tax national income inequality in Mozambique")
+```
+
+The linear interpolation is quite visible. In some contexts, this might be undesirable. To exclude interpolated points, use `include_extrapolations = FALSE`:
+
+```{r, message=FALSE, fig.align='center', fig.height=4}
+data <- download_wid(
+    indicators = "sptinc", # Shares of pre-tax national income
+    areas = "MZ", # Mozambique
+    perc = c("p0p50", "p90p100", "p99p100"), # Bottom 50%, top 10% and top 1%
+    include_extrapolations = FALSE # Do not include interpolations
+)
+
+ggplot(data, aes(x = year, y = value, color = percentile)) +
+    geom_line() + geom_point() +
+    ylab("share of income") +
+    scale_color_discrete(
+        labels = c("p0p50" = "bottom 50%", "p90p100" = "top 10%", "p99p100" = "top 1%")
+    ) + 
+    ggtitle("Pre-tax national income inequality in Mozambique")
 ```
 

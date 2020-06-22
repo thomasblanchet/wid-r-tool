@@ -9,7 +9,7 @@ get_metadata_variables(areas, variables)
 \arguments{
 \item{areas}{List of area codes.}
 
-\item{variables}{List of variables, of the form: \code{"xxxxxx_999_i"}}
+\item{variables}{List of variables, of the form: \code{"xxxxxx_pXXpYY_999_i"}}
 }
 \description{
 Perform GET request to the server to retrieve metadata

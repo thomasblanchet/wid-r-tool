@@ -187,13 +187,13 @@
 #'     \item{\code{age}}{The age group, in plain english.}
 #'     \item{\code{source}}{The source for the data.}
 #'     \item{\code{method}}{Methodological notes, if any.}
-#'     \item{\code{imputation}}{Type of estimate (when applicable).}
-#'     \item{\code{quality}}{Data quality (when applicable).}
+#'     \item{\code{imputation}}{Type of estimate (when applicable). The \code{imputation}
+#'         field is a short qualitative description of the type of estimate provided,
+#'         which is strongly related to data quality. For technical details, see
+#'         the \code{method} field and papers cited in \code{source}.}
+#'     \item{\code{quality}}{Data quality (when applicable). The \code{quality}
+#'         field is a score from 0 to 5 indicating the quality of the data.}
 #' }
-#' The \code{quality} field is a score from 0 to 5 indicating the quality of the
-#' data. The \code{imputation} field is a short qualitative description of the type
-#' of estimate provided, which is strongly related to data quality. For technical
-#' details, see papers cited in the source.
 #'
 #' @importFrom plyr ddply ldply
 #'

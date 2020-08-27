@@ -26,3 +26,5 @@ vignettes/*.pdf
 #inst/doc
 doc
 Meta
+tests/.DS_Store
+.DS_Store

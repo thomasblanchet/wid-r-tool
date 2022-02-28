@@ -75,8 +75,8 @@ test_that("we can download metadata", {
     expect_true(all(data$countryname == "France"))
     expect_true(all(data$variable == "sptinc992j"))
     expect_true(all(data$percentile == "p99p100"))
-    expect_true(all(data$quality == "5"))
-    expect_true(all(data$imputation == "surveys and tax microdata"))
+    expect_true(all(data$quality == "4"))
+    expect_true(all(data$imputation == "surveys and tax data"))
 })
 
 test_that("we can exclude extrapolations/interpolations", {

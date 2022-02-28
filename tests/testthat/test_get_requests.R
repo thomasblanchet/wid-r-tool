@@ -4,7 +4,7 @@ test_that("request for variables in area(s) works as expected", {
     skip_on_cran()
 
     df <- get_variables_areas("FR")
-    expect_equal(nrow(df), 15355)
+    expect_equal(nrow(df), 16535)
     expect_equal(ncol(df), 5)
 
     df <- get_variables_areas("XX")
@@ -27,7 +27,7 @@ test_that("request for metadata works as expected", {
 
     df <- get_metadata_variables("FR", "sptinc_p99p100_992_t")
     expect_equal(nrow(df), 1)
-    expect_equal(ncol(df), 16)
+    expect_equal(ncol(df), 15)
 
     df <- get_metadata_variables("FR", "xxxxxx_p99p100_992_t")
     expect_equal(nrow(df), 0)

@@ -82,6 +82,18 @@ test_that("we can download metadata", {
 test_that("we can exclude extrapolations/interpolations", {
     skip_on_cran()
 
+    download_wid(
+        indicators = "acainc",
+        areas = "all",
+        years = "all",
+        perc = c("p99p100","p90p100","p95p100"),
+        ages = "992",
+        pop = "j",
+        metadata = F,
+        include_extrapolations = F,
+        verbose = FALSE
+    )
+
     data <- download_wid(
         areas = "MZ",
         indicators = "sptinc",

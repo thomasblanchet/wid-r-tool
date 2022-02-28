@@ -106,31 +106,35 @@ get_data_variables <- function(areas, variables, no_extrapolation = FALSE) {
             if (no_extrapolation) {
                 # Periods of extrapolated data
                 extrapol_brackets <- json_meta$extrapolation
-                if (!is.na(extrapol_brackets) & extrapol_brackets != "") {
-                    extrapol_brackets <- fromJSON(extrapol_brackets)
+                if (!is.null(extrapol_brackets)) {
+                    if (!is.na(extrapol_brackets) & extrapol_brackets != "") {
+                        extrapol_brackets <- fromJSON(extrapol_brackets)
 
-                    # Data points to be included
-                    data_points <- json_meta$data_points
-                    if (!is.na(data_points) & data_points != "") {
-                        data_points <- fromJSON(data_points)
-                    } else {
-                        data_points <- NULL
+                        # Data points to be included
+                        data_points <- json_meta$data_points
+                        if (!is.null(data_points)) {
+                            if (!is.na(data_points) & data_points != "") {
+                                data_points <- fromJSON(data_points)
+                            } else {
+                                data_points <- NULL
+                            }
+                        }
+
+                        # List of year to exclude because they are extrapolations
+                        to_exclude <- NULL
+                        for (i in 1:nrow(extrapol_brackets)) {
+                            exclude_range <- seq(
+                                from = as.integer(extrapol_brackets[i, 1]) + 1,
+                                to = as.integer(extrapol_brackets[i, 2])
+                            )
+                            to_exclude <- c(to_exclude, exclude_range)
+                        }
+                        to_exclude <- as.character(to_exclude)
+                        to_exclude <- to_exclude[!(to_exclude %in% data_points)]
+
+                        # Remove extrapolations from the data
+                        df_data <- df_data[!(df_data$year %in% to_exclude), ]
                     }
-
-                    # List of year to exclude because they are extrapolations
-                    to_exclude <- NULL
-                    for (i in 1:nrow(extrapol_brackets)) {
-                        exclude_range <- seq(
-                            from = as.integer(extrapol_brackets[i, 1]) + 1,
-                            to = as.integer(extrapol_brackets[i, 2])
-                        )
-                        to_exclude <- c(to_exclude, exclude_range)
-                    }
-                    to_exclude <- as.character(to_exclude)
-                    to_exclude <- to_exclude[!(to_exclude %in% data_points)]
-
-                    # Remove extrapolations from the data
-                    df_data <- df_data[!(df_data$year %in% to_exclude), ]
                 }
             }
 

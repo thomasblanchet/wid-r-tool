@@ -1,3 +1,17 @@
+> [!IMPORTANT]
+> 
+> Thank you for your interest in this project. However, please be aware that this repository is **no longer maintained**.
+> 
+> - No further updates or bug fixes will be made.
+> - Issues and pull requests will not be responded to.
+>   
+> For any critical needs, please consider forking the repository and making your own updates.
+
+> [!WARNING]
+> 
+> I have serious concerns regarding the reliability and the integrity of the data this package accesses.
+> I advise users to exercise extreme caution and skepticism when using this tool, and I recommend seeking alternative sources for accuracy and reliability.
+
 # R package to download data from the WID.world database
 
 This package downloads data from the online World Wealth and
@@ -13,7 +27,7 @@ The package is not yet available on CRAN. But you can install the
 development version by typing:
 ```{r}
 install.packages("devtools")
-devtools::install_github("WIDworld/wid-r-tool")
+devtools::install_github("thomasblanchet/wid-r-tool")
 ```
 
 ## Usage

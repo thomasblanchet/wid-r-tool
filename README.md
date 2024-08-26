@@ -10,7 +10,7 @@
 > [!WARNING]
 > 
 > I have grave concerns regarding the validity and integrity of the data this package accesses.
-> I advise users to exercise extreme caution and skepticism when using this tool, and to seek alternative sources for their work.
+> I urge users to exercise extreme caution and skepticism when using this tool, and to seek alternative sources for their work.
 
 # R package to download data from the WID.world database
 
